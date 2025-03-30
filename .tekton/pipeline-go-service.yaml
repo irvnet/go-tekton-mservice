@@ -1,0 +1,29 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: go-service-ci
+spec:
+  params:
+    - name: repo-url
+      type: string
+    - name: revision
+      type: string
+    - name: image-url
+      type: string
+  workspaces:
+    - name: source
+  tasks:
+    - name: build-go-task
+      taskRef:
+        name: build-go-service
+      params:
+        - name: repo-url
+          value: ""
+        - name: revision
+          value: ""
+        - name: image-url
+          value: ""
+      workspaces:
+        - name: source
+          workspace: source

@@ -1,0 +1,40 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: build-go-service
+spec:
+  params:
+    - name: repo-url
+      type: string
+    - name: revision
+      type: string
+    - name: image-url
+      type: string
+  workspaces:
+    - name: source
+  steps:
+    - name: clone
+      image: alpine/git
+      workingDir: /workspace/source
+      script: |
+        #!/bin/sh
+        git clone  . && git checkout 
+
+    - name: build
+      image: golang:1.24.1
+      workingDir: /workspace/source/src
+      script: |
+        #!/bin/sh
+        go mod tidy
+        go build -o server
+
+    - name: build-and-push-image
+      image: gcr.io/kaniko-project/executor:latest
+      workingDir: /workspace/source/src
+      env:
+        - name: DOCKER_CONFIG
+          value: /tekton/home/.docker/
+      script: |
+        #!/busybox/sh
+        /kaniko/executor           --dockerfile=../Dockerfile           --destination=           --context=.
