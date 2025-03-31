@@ -8,11 +8,11 @@ spec:
     name: go-service-ci
   params:
     - name: repo-url
-      value: https://github.com/YOUR_USERNAME/go-tekton-microservice.git
+      value: https://github.com/irvnet/go-tekton-mservice.git
     - name: revision
       value: main
     - name: image-url
-      value: docker.io/YOUR_USERNAME/go-tekton-microservice:latest
+      value: docker.io/irvnet/go-tekton-mservice:latest
   workspaces:
     - name: source
       emptyDir: {}
