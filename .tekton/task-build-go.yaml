@@ -1,4 +1,3 @@
----
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
@@ -19,8 +18,19 @@ spec:
       workingDir: /workspace/source
       script: |
         #!/bin/sh
-        git clone  . && git checkout 
-
+        echo "Cleaning workspace..."
+        rm -rf ./*
+        echo "Cloning: $(params.repo-url)"
+        git clone $(params.repo-url) .
+        git checkout $(params.revision)
+        echo "Cloned $(params.repo-url) at $(params.revision)"
+        echo "Current directory: $(pwd)"
+        echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
+        echo "Current commit: $(git rev-parse HEAD)"
+        echo "Current status:"
+        git status
+        echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
+        echo "Current commit: $(git rev-parse HEAD)"
     - name: build
       image: golang:1.24.1
       workingDir: /workspace/source/src
@@ -37,4 +47,8 @@ spec:
           value: /tekton/home/.docker/
       script: |
         #!/busybox/sh
-        /kaniko/executor           --dockerfile=../Dockerfile           --destination=           --context=.
+        /kaniko/executor \
+          --dockerfile=../Dockerfile \
+          --destination=$(params.image-url) \
+          --context=.
+
