@@ -19,11 +19,12 @@ spec:
         name: build-go-service
       params:
         - name: repo-url
-          value: ""
+          value: "$(params.repo-url)"
         - name: revision
-          value: ""
+          value: "$(params.revision)"
         - name: image-url
-          value: ""
+          value: "$(params.image-url)"
       workspaces:
         - name: source
           workspace: source
+
