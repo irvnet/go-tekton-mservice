@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: build-and-push-go-image
+spec:
+  description: >-
+    Build a Go-based microservice using Kaniko and push it to a container registry.
+  params:
+    - name: image-url
+      type: string
+      description: build and push mservice:latest 
+  workspaces:
+    - name: output
+      description: The workspace where the Git repo is cloned
+  steps:
+    - name: setup
+      image: alpine
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/sh
+        echo "🔧 Setting up environment..."
+        apk add --no-cache git
+        echo "🔧 Cloning the repository..."
+        git clone https://github.com/irvnet/go-tekton-mservice.git .
+    - name: debug
+      image: alpine
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/sh
+        echo "where am i?"
+        pwd
+        echo "🔍 Listing contents of workspace:"
+        ls -la
+        echo "🔍 Dockerfile preview:"
+        head -n 20 Dockerfile
+    - name: build-and-push
+      image: gcr.io/kaniko-project/executor:latest
+      workingDir: $(workspaces.source.path)
+      env:
+        - name: DOCKER_CONFIG
+          value: /tekton/home/.docker/
+      command:
+        - /kaniko/executor
+      args:
+        - --dockerfile=Dockerfile
+        - --context=.
+        - --destination=$(params.image-url)
+        - --verbosity=info
+

@@ -1,8 +1,7 @@
----
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  name: go-service-ci-run
+  generateName: go-service-ci-run-
 spec:
   pipelineRef:
     name: go-service-ci
@@ -14,5 +13,6 @@ spec:
     - name: image-url
       value: docker.io/irvnet/go-tekton-mservice:latest
   workspaces:
-    - name: source
+    - name: output
       emptyDir: {}
+

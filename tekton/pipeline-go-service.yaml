@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: go-service-ci
+spec:
+  description: |
+    Clone a Go microservice repo and build/push it using Kaniko.
+  params:
+    - name: repo-url
+      type: string
+      description: The Git repository URL
+    - name: revision
+      type: string
+      default: main
+      description: Git revision to checkout
+    - name: image-url
+      type: string
+      description: Destination image URL for the built image
+  workspaces:
+    - name: output
+  tasks:
+    - name: fetch-source
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: output
+      params:
+        - name: url
+          value: $(params.repo-url)
+        - name: revision
+          value: $(params.revision)
+        - name: deleteExisting
+          value: "true"
+        - name: subdirectory
+          value: "" 
+
+    - name: build-and-push
+      taskRef:
+        name: build-and-push-go-image
+      runAfter:
+        - fetch-source
+      workspaces:
+        - name: output
+          workspace: output
+      params:
+        - name: image-url
+          value: $(params.image-url)
+
